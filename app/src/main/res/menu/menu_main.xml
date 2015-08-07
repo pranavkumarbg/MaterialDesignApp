@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.rhcloud.phpnew_pranavkumar.materialdesignapp.MainActivity">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item android:id="@+id/navigate" android:title="@string/next"
+        android:orderInCategory="200"
+        app:showAsAction="always"
+        android:icon="@android:drawable/alert_dark_frame">
+
+    </item>
+</menu>
