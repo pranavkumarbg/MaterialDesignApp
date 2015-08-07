@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             materialTab.addTab(
                     materialTab.newTab()
                             .setText(myAdapter.getPageTitle(i))
+
                             .setTabListener(this)
             );
         }
@@ -205,9 +206,9 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             // View view=inflater.inflate(R.layout.fragment_my, container, false);
             View layout = inflater.inflate(R.layout.fragment_my_first, container, false);
 
-            textView=(TextView)layout.findViewById(R.id.textView2);
+            //textView=(TextView)layout.findViewById(R.id.textView2);
 
-            textView.setText("hi");
+           // textView.setText("hi");
 
 
             return layout;
@@ -347,6 +348,14 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
     public static class MyFragment2 extends Fragment {
         private TextView textView;
 
+        RecyclerView mRecyclerView;
+        RecyclerView.LayoutManager mLayoutManager;
+        GridAdapterNew mAdapter;
+        JSONObject jsonobject;
+        JSONArray jsonarray;
+        String b;
+        String json;
+        private ArrayList<FeedItem> feedItemList = new ArrayList<FeedItem>();
         public static MyFragment2 getInstance(int position) {
             // MyFragment myFragment=new MyFragment();
             MyFragment2 myFragment = new MyFragment2();
@@ -363,12 +372,99 @@ public class MainActivity extends AppCompatActivity implements MaterialTabListen
             // View view=inflater.inflate(R.layout.fragment_my, container, false);
             View layout = inflater.inflate(R.layout.fragment_my_third, container, false);
 
-            textView=(TextView)layout.findViewById(R.id.textView3);
+           // textView=(TextView)layout.findViewById(R.id.textView3);
 
-            textView.setText("hi 3");
+           // textView.setText("hi 3");
+
+            new DownloadJSON().execute();
+
+            mRecyclerView = (RecyclerView) layout.findViewById(R.id.recycler_viewk);
+            mRecyclerView.setHasFixedSize(true);
+
+            // The number of Columns
+            mLayoutManager = new GridLayoutManager(getActivity(), 1);
+
+            // StaggeredGridLayoutManager mLayoutManager1 = new StaggeredGridLayoutManager(2,1);
+            mRecyclerView.setLayoutManager(mLayoutManager);
 
 
             return layout;
+        }
+
+        private class DownloadJSON extends AsyncTask<String, String, String> {
+
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+
+            }
+
+            @Override
+            public String doInBackground(String... params) {
+
+
+                //  String json = JSONfunctions.getJSONfromURL("http://newjson-pranavkumar.rhcloud.com/GridViewJson");
+
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request request = new Request.Builder().url("http://newjson-pranavkumar.rhcloud.com/GridViewJson")
+                        .build();
+
+
+                try {
+                    Response response = okHttpClient.newCall(request).execute();
+
+                    json = response.body().string();
+
+
+                    JSONObject reader = new JSONObject(json);
+                    jsonarray = reader.getJSONArray("images");
+
+                    for (int i = 0; i < jsonarray.length(); i++) {
+
+                        jsonobject = jsonarray.getJSONObject(i);
+
+                        FeedItem item = new FeedItem();
+
+                        item.setThumbnail(jsonobject.optString("image"));
+                        feedItemList.add(item);
+
+                    }
+                } catch (JSONException e) {
+                    Log.e("Error", e.getMessage());
+                    e.printStackTrace();
+                } catch (Exception e) {
+
+                }
+                return json;
+            }
+
+            @Override
+            protected void onPostExecute(String args) {
+
+                if (args != null && !args.isEmpty()) {
+
+                    mAdapter = new GridAdapterNew(getActivity(), feedItemList);
+
+                    mRecyclerView.setAdapter(mAdapter);
+                    // Toast.makeText(getApplicationContext(),args,Toast.LENGTH_LONG).show();
+                    mAdapter.SetOnItemClickListener(new GridAdapterNew.OnItemClickListener() {
+
+                        @Override
+                        public void onItemClick(View v, int position) {
+                            // do something with position
+                            Toast.makeText(getActivity(),"u clicked on pos:"+position,Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                else
+                {
+                    Toast.makeText(getActivity(),"no internet or server is down",Toast.LENGTH_LONG).show();
+
+                }
+
+
+            }
         }
     }
 
