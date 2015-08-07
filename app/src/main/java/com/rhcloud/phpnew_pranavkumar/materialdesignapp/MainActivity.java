@@ -21,11 +21,16 @@ import android.widget.TextView;
 
 import com.rhcloud.phpnew_pranavkumar.materialdesignapp.tabs.SlidingTabLayout;
 
-public class MainActivity extends AppCompatActivity {
+import it.neokree.materialtabs.MaterialTab;
+import it.neokree.materialtabs.MaterialTabHost;
+import it.neokree.materialtabs.MaterialTabListener;
+
+public class MainActivity extends AppCompatActivity implements MaterialTabListener{
 
     private Toolbar toolbar;
     private SlidingTabLayout tabHost;
     private ViewPager viewPager;
+    private MaterialTabHost materialTab;
 
 
     @Override
@@ -44,21 +49,40 @@ public class MainActivity extends AppCompatActivity {
 
         drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
 
-        tabHost = (SlidingTabLayout) findViewById(R.id.tabs);
+        materialTab=(MaterialTabHost)findViewById(R.id.materialTabHost);
+        //tabHost = (SlidingTabLayout) findViewById(R.id.tabs);
         viewPager = (ViewPager) findViewById(R.id.pager);
+        MyPagerAdapter myAdapter=new MyPagerAdapter(getSupportFragmentManager());
+        //viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+        viewPager.setAdapter(myAdapter);
+       // tabHost.setCustomTabView(R.layout.custom_tab_view, R.id.textViewtab);
 
-        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
-        tabHost.setCustomTabView(R.layout.custom_tab_view, R.id.textViewtab);
-        tabHost.setDistributeEvenly(true);
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+
+                                              @Override
+                                              public void onPageSelected(int position) {
+                                                  materialTab.setSelectedNavigationItem(position);
+                                              }
+                                          }
+        );
+
+        for (int i = 0; i < myAdapter.getCount(); i++) {
+            materialTab.addTab(
+                    materialTab.newTab()
+                            .setText(myAdapter.getPageTitle(i))
+                            .setTabListener(this)
+            );
+        }
+       // tabHost.setDistributeEvenly(true);
 //        tabHost.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
 //            @Override
 //            public int getIndicatorColor(int position) {
 //                return getResources().getColor(R.color.accent);
 //            }
 //        });
-       tabHost.setBackgroundColor(getResources().getColor(R.color.primary));
-        tabHost.setSelectedIndicatorColors(getResources().getColor(R.color.accentColor));
-        tabHost.setViewPager(viewPager);
+//       tabHost.setBackgroundColor(getResources().getColor(R.color.primary));
+//        tabHost.setSelectedIndicatorColors(getResources().getColor(R.color.accentColor));
+//        tabHost.setViewPager(viewPager);
     }
 
     @Override
@@ -84,6 +108,23 @@ public class MainActivity extends AppCompatActivity {
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onTabSelected(MaterialTab materialTab) {
+
+        viewPager.setCurrentItem(materialTab.getPosition());
+
+    }
+
+    @Override
+    public void onTabReselected(MaterialTab materialTab) {
+
+    }
+
+    @Override
+    public void onTabUnselected(MaterialTab materialTab) {
+
     }
 
     class MyPagerAdapter extends FragmentPagerAdapter
